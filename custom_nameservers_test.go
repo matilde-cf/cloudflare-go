@@ -150,43 +150,6 @@ func TestAccountCustomNameserver_Create(t *testing.T) {
 	}
 }
 
-func TestAccountCustomNameserver_GetEligibleZones(t *testing.T) {
-	setup()
-	defer teardown()
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, http.MethodGet, r.Method, "Expected method 'GET', got %s", r.Method)
-		w.Header().Set("content-type", "application/json")
-		fmt.Fprintf(w, `{
-    "result": [
-        "example.com",
-        "example2.com",
-        "example3.com"
-    ],
-    "success": true,
-    "errors": [],
-    "messages": []
-}`)
-	}
-
-	mux.HandleFunc("/accounts/"+testAccountID+"/custom_ns/availability", handler)
-	want := []string{
-		"example.com",
-		"example2.com",
-		"example3.com",
-	}
-
-	actual, err := client.GetEligibleZonesAccountCustomNameservers(
-		context.Background(),
-		AccountIdentifier(testAccountID),
-		GetEligibleZonesAccountCustomNameserversParams{},
-	)
-
-	if assert.NoError(t, err) {
-		assert.Equal(t, want, actual)
-	}
-}
-
 func TestAccountCustomNameserver_GetAccountCustomNameserverZoneMetadata(t *testing.T) {
 	setup()
 	defer teardown()

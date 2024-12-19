@@ -42,10 +42,6 @@ type customNameserverCreateResponse struct {
 	Result CustomNameserverResult `json:"result"`
 }
 
-type getEligibleZonesAccountCustomNameserversResponse struct {
-	Result []string `json:"result"`
-}
-
 type customNameserverZoneMetadata struct {
 	Response
 	Result CustomNameserverZoneMetadata
@@ -61,8 +57,6 @@ type CreateCustomNameserversParams struct {
 type DeleteCustomNameserversParams struct {
 	NSName string
 }
-
-type GetEligibleZonesAccountCustomNameserversParams struct{}
 
 type GetCustomNameserverZoneMetadataParams struct{}
 
@@ -138,30 +132,6 @@ func (api *API) DeleteCustomNameservers(ctx context.Context, rc *ResourceContain
 	}
 
 	return nil
-}
-
-// GetEligibleZonesAccountCustomNameservers lists zones eligible for custom nameservers.
-//
-// API documentation: https://developers.cloudflare.com/api/operations/account-level-custom-nameservers-get-eligible-zones-for-account-custom-nameservers
-func (api *API) GetEligibleZonesAccountCustomNameservers(ctx context.Context, rc *ResourceContainer, params GetEligibleZonesAccountCustomNameserversParams) ([]string, error) {
-	if rc.Level != AccountRouteLevel {
-		return []string{}, ErrRequiredAccountLevelResourceContainer
-	}
-
-	uri := fmt.Sprintf("/%s/%s/custom_ns/availability", rc.Level, rc.Identifier)
-
-	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var response getEligibleZonesAccountCustomNameserversResponse
-	err = json.Unmarshal(res, &response)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errUnmarshalError, err)
-	}
-
-	return response.Result, nil
 }
 
 // GetCustomNameserverZoneMetadata get metadata for custom nameservers on a zone.
